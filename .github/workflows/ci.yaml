@@ -32,6 +32,9 @@ jobs:
       # Gradle Wrapper에 실행 권한을 부여합니다.
       - name: Grant execute permission for Gradle Wrapper
         run: chmod +x ./gradlew
+             git add gradlew
+             git commit -m "Fix gradlew file permissions" || echo "No changes to commit"
+             git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:$(echo ${{ github.ref }} | sed 's/refs\/heads\///') || echo "No changes to push"
 
       # Gradle 의존성을 캐싱하여 빌드 속도를 향상시킵니다. 캐시를 구분하는 고유한 키 값을 저장합니다.
       # GitHub Actions에서 ./gradlew build 를 실행할 때 모든 의존성을 다시 다운로드하는 경우, 빌드 속도가 느려질 수 있습니다.
@@ -92,5 +95,5 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'github-actions@github.com'
-          git add k8s/deployment.yaml
+          git add k8s/deployment.yaml gradlew
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update image tag to ${{ github.sha }}"; git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }})
