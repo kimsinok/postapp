@@ -1,1 +1,30 @@
 
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: spring-rest-api
+  namespace: argocd          # ArgoCD가 설치된 네임스페이스
+spec:
+  project: default
+  source:                     # ArgoCD가 Kubernetes 클러스터에 배포하고 관리할 애플리케이션 정의
+    repoURL: https://[GITHUB gitops_petclinic 주소].git
+    targetRevision: HEAD      # 배포할 브랜치 이름 (HEAD : default), 항상 해당 브랜치의 가장 최신 커밋 상태로 애플리케이션을 동기화
+    path: apps                # 배포 파일이 위치한 리포지토리 내 경로 (k8s 매니페스트 파일 위치)
+  destination:                # 애플리케이션이 배포될 Kubernetes 클러스터와 네임스페이스 정의
+    server: https://kubernetes.default.svc
+    namespace: postapp
+  syncPolicy:                 # Argo CD가 애플리케이션을 자동으로 동기화하는 방식 정의
+    automated:
+      prune: true             # 애플리케이션 동기화 시 불필요한 리소스를 자동으로 삭제
+      selfHeal: true          # 클러스터의 리소스가 변경된 경우 Argo CD가 원래 상태로 복구하도록 설정 
+    syncOptions:              # 동기화 시 적용할 옵션
+      - Validate=false        # 매니페스트 파일을 Kubernetes 서버에서 유효성 검사를 생략
+      - CreateNamespace=true  # 지정된 네임스페이스가 없으면 자동으로 생성
+      - PrunePropagationPolicy=foreground  # 동기화 시 필요 없는 리소스를 최종적으로 삭제
+      - PruneLast=true                     # 마지막에 Prune(클린업) 를 수행하도록 설정
+    retry:                                 # 동기화 실패 시 재시도 정책 정의
+      limit: 5                             # 최대 5회 재시도
+      backoff:                             # 재시도 지연 설정
+        duration: 5s                       # 첫 재시도 간격을 5초
+        factor: 2                          # 지연 시간 증가 배율로, 이전 지연 시간의 2배씩 증가하도록 설정
+        maxDuration: 3m                    # 최대 지연 시간은 3분 
