@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: post-container
-          image: javaenjoy0714/postapp:v1
+          image: $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:IMAGE_TAG
           ports:
             - containerPort: 8080
           resources:
@@ -58,7 +58,7 @@ spec:
     spec:
       containers:
         - name: mysql-container
-          image: mysql:8.0.41
+          image: $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:IMAGE_TAG
           ports:
             - containerPort: 3306
          
