@@ -63,7 +63,7 @@ jobs:
       # DOCKER_HUB_USERNAME: Docker Hub 사용자명
       # DOCKER_HUB_REPOSITORY: 리포지토리 이름
       # IMAGE_TAG: GitHub 커밋 SHA를 이미지 태그로 사용하여 이미지의 버전을 관리합니다. 각 커밋마다 고유한 태그가 붙어 관리가 용이
-      # 이미지가 빌드되고, 지정된 ECR 리포지토리에 푸시됩니다.      
+      # 이미지가 빌드되고, 지정된 도커 허브 리포지토리에 푸시됩니다.      
       - name: Build, tag, and push image to Docker Hub
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -76,35 +76,22 @@ jobs:
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  Kubernetes 관련 설정		
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-# Kubernetes 배포 YAML 파일(k8s/apps/backend/post-deployment.yaml)의 image 태그를 새로 빌드되는 이미지 태그로 업데이트합니다.
-
-  upate-external-repo:        
-    name: Update Deployment YAML in Another Repo
-    runs-on: ubuntu:20.04
-    steps:
-      - name: Checkout Current Repository
-        uses: actions/checkout@v3  
-
-      # 다른 리포지토리 클론 
-      - name: Clone External Repository
-        run: |
-          git clone https://${{ secrets.TARGET_REPO_PAT }}@github.com/kimsinok/gitops-repo.git
-          cd gitops-repo
-
+      # Kubernetes 배포 YAML 파일(k8s/deployment.yaml)의 image 태그를 새로 빌드되는 이미지 태그로 업데이트합니다.
       - name: Update Deployment YAML
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_REPOSITORY: postapp
           IMAGE_TAG: ${{ github.sha }}
         run:  |
-          sed -i 's|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/postapp:${{ github.sha }}|' k8s/apps/backend/post-deployment.yaml	 
+          sed -i 's|image: .*|image: $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:IMAGE_TAG|' k8s/deployment.yaml	 
 
           
       # 변경사항이 있으면 커밋하고 푸시합니다.
-      # 변경된 k8s/apps/backend/post-deployment.yaml	 파일을 git에 push
+      # 변경된 k8s/deployment.yaml	 파일을 git에 push
       - name: Commit and push if there are changes
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'github-actions@github.com'
-          git add k8s/apps/backend/post-deployment.yaml	 
+          git add k8s/deployment.yaml 
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update image tag to ${{ github.sha }}"; git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }})
   
