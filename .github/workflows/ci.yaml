@@ -53,7 +53,6 @@ jobs:
       # Gradle Wrapper를 사용하여 프로젝트를 빌드. 테스트는 건너 뛰고 빌드만 진행.
       - name: Build with Gradle Wrapper
         run: ./gradlew build -x test
-
          
       # Docker Hub에 로그인합니다. : Docker Hub 계정의 사용자명, Docker Hub에서 생성한 액세스 토큰 
       - name: Log in to Docker Hub
