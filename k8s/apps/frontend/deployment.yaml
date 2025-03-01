@@ -1,1 +1,23 @@
 
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: react-board
+  namespace: postapp
+spec:
+spec:
+  replicas: 2 
+  selector:
+    matchLabels:
+      app: react-board-pod
+  template:
+    metadata:
+      labels:
+        app: react-board-pod
+    spec:
+      containers:
+      - name: react-board-container
+        image: javaenjoy0714/react-board:v1
+        ports:
+        - containerPort: 80
+
