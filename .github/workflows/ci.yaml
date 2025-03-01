@@ -67,7 +67,7 @@ jobs:
       # 이미지가 빌드되고, 지정된 ECR 리포지토리에 푸시됩니다.      
       - name: Build, tag, and push image to Docker Hub
         env:
-          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          DOCKER_HUB_USERNAME: "javaenjoy0714"
           DOCKER_HUB_REPOSITORY: postapp
           IMAGE_TAG: ${{ github.sha }}
         run: |
