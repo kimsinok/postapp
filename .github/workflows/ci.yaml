@@ -57,8 +57,8 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-            username: "javaenjoy0714"
-            password: "dckr_pat_1sSLffdRIQ13XKgarG9Kv6-9YA8"
+            username: ${{ secrets.DOCKER_HUB_USERNAME }}
+            password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
     
       # Docker 이미지를 빌드하고 Docker Hub에 푸시합니다.
       # DOCKER_HUB_USERNAME: Docker Hub 사용자명
@@ -67,7 +67,7 @@ jobs:
       # 이미지가 빌드되고, 지정된 ECR 리포지토리에 푸시됩니다.      
       - name: Build, tag, and push image to Docker Hub
         env:
-          DOCKER_HUB_USERNAME: "javaenjoy0714"
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_REPOSITORY: postapp
           IMAGE_TAG: ${{ github.sha }}
         run: |
