@@ -80,8 +80,13 @@ jobs:
       
       # Kubernetes 배포 YAML 파일(k8s/deployment.yaml)의 image 태그를 새로 빌드되는 이미지 태그로 업데이트합니다.
       - name: Update Deployment YAML
+        env:
+          DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
+          IMAGE_TAG: ${{ github.sha }}
         run:  |
-          sed -i 's|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/postapp:${{ github.sha }}|' k8s/deployment.yaml	   
+          sed -i 's|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/postapp:${{ github.sha }}|' k8s/deployment.yaml	 
+
+          
       # 변경사항이 있으면 커밋하고 푸시합니다.
       # 변경된 k8s/deployment.yaml파일을 git에 push
       - name: Commit and push if there are changes
