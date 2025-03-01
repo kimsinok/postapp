@@ -76,8 +76,21 @@ jobs:
 # ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 #  Kubernetes 관련 설정		
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-      
-      # Kubernetes 배포 YAML 파일(k8s/apps/backend/post-deployment.yaml)의 image 태그를 새로 빌드되는 이미지 태그로 업데이트합니다.
+# Kubernetes 배포 YAML 파일(k8s/apps/backend/post-deployment.yaml)의 image 태그를 새로 빌드되는 이미지 태그로 업데이트합니다.
+
+  upate-external-repo:        
+    name: Update Deployment YAML in Another Repo
+    runs-on: ubuntu:20.04
+    steps:
+      - name: Checkout Current Repository
+        uses: actions/checkout@v3  
+
+      # 다른 리포지토리 클론 
+      - name: Clone External Repository
+        run: |
+          git clone https://${{ secrets.TARGET_REPO_PAT }}@github.com/kimsinok/gitops-repo.git
+          cd target-repo
+
       - name: Update Deployment YAML
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
