@@ -1,44 +1,33 @@
-# 워크플로우 이름 
 name: Build, Push, and Update Deployment
 
-# 워크플로우를 트리거하는 이벤트 정의
-# 이 워크플로우는 main 브랜치에 대한 푸시 이벤트 또는 main 브랜치로의 풀 리퀘스트 이벤트가 발생할 때마다 트리거된다.
 on:
   push:
     branches:
-      - main  # main 브랜치에 푸시가 발생하면 실행
+      - main
   pull_request:
     branches:
-      - main  # main 브랜치로의 풀 리퀘스트가 발생하면 실행
+      - main
 
-# 빌드 작업 정의  
 jobs:
   build:
-    runs-on: ubuntu-20.04 # GitHub Actions 워크플로우가 실행 될 가상 환경(Runner)
-    steps: 
-      # 현재 레포지토리의 코드를 체크아웃하여 빌드와 배포에 필요한 파일들을 가져옴.
+    runs-on: ubuntu-20.04
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      # Set up JDK 17
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
-          distribution: 'temurin'   # Java 배포판 ㅣ  LTS 버전 
-          cache: gradle  # GitHub Actions의 캐싱 메커니즘 사용, 동일한 의존성을 다시 다운로드하지 않도록 하여 CI/CD 실행 시간을 단축
+          distribution: 'temurin'
+          cache: gradle
           
-      # GitHub Actions는 Linux 기반의 CI/CD 환경에서 실행되므로, .sh 또는 mvnw 같은 실행 스크립트 파일에 실행 권한이 없으면 실행할 수 없습니다.
-      # Gradle Wrapper에 실행 권한을 부여합니다.
       - name: Grant execute permission for Gradle Wrapper
-        run: chmod +x ./gradlew
-             git add gradlew
-             git commit -m "Fix gradlew file permissions" || echo "No changes to commit"
-             git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:$(echo ${{ github.ref }} | sed 's/refs\/heads\///') || echo "No changes to push"
+        run: |
+          chmod +x gradlew
+          git add gradlew
+          git diff --quiet gradlew || (git commit -m "Fix gradlew file permissions" && git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:$(echo ${{ github.ref }} | sed 's/refs\/heads\///'))
 
-      # Gradle 의존성을 캐싱하여 빌드 속도를 향상시킵니다. 캐시를 구분하는 고유한 키 값을 저장합니다.
-      # GitHub Actions에서 ./gradlew build 를 실행할 때 모든 의존성을 다시 다운로드하는 경우, 빌드 속도가 느려질 수 있습니다.
-      # actions/cache를 사용하면, 이전 빌드에서 다운로드된 의존성을 재사용하여 빌드 속도가 크게 단축됩니다.
       - name: Cache Gradle packages
         uses: actions/cache@v3
         with:
@@ -49,23 +38,15 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-    
-      # Gradle Wrapper를 사용하여 프로젝트를 빌드. 테스트는 건너 뛰고 빌드만 진행.
       - name: Build with Gradle Wrapper
         run: ./gradlew build -x test
          
-      # Docker Hub에 로그인합니다. : Docker Hub 계정의 사용자명, Docker Hub에서 생성한 액세스 토큰 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-            username: ${{ secrets.DOCKER_HUB_USERNAME }}
-            password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
     
-      # Docker 이미지를 빌드하고 Docker Hub에 푸시합니다.
-      # DOCKER_HUB_USERNAME: Docker Hub 사용자명
-      # DOCKER_HUB_REPOSITORY: 리포지토리 이름
-      # IMAGE_TAG: GitHub 커밋 SHA를 이미지 태그로 사용하여 이미지의 버전을 관리합니다. 각 커밋마다 고유한 태그가 붙어 관리가 용이
-      # 이미지가 빌드되고, 지정된 도커 허브 리포지토리에 푸시됩니다.      
       - name: Build, tag, and push image to Docker Hub
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
@@ -74,25 +55,18 @@ jobs:
         run: |
           docker build -t $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:$IMAGE_TAG .
           docker push $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:$IMAGE_TAG
-
-# ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-#  Kubernetes 관련 설정		
-# ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-      # Kubernetes 배포 YAML 파일(k8s/deployment.yaml)의 image 태그를 새로 빌드되는 이미지 태그로 업데이트합니다.
+      
       - name: Update Deployment YAML
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_REPOSITORY: postapp
           IMAGE_TAG: ${{ github.sha }}
-        run:  |
-          sed -i 's|image: .*|image: $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:IMAGE_TAG|' k8s/deployment.yaml	 
+        run: |
+          sed -i "s|image: .*|image: $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:${IMAGE_TAG}|" k8s/deployment.yaml
 
-          
-      # 변경사항이 있으면 커밋하고 푸시합니다.
-      # 변경된 k8s/deployment.yaml 파일을 git에 push
       - name: Commit and push if there are changes
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'github-actions@github.com'
           git add k8s/deployment.yaml gradlew
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Update image tag to ${{ github.sha }}"; git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }})
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Update image tag to ${{ github.sha }}" && git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:$(echo ${{ github.ref }} | sed 's/refs\/heads\///'))
