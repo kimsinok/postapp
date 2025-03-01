@@ -89,7 +89,7 @@ jobs:
       - name: Clone External Repository
         run: |
           git clone https://${{ secrets.TARGET_REPO_PAT }}@github.com/kimsinok/gitops-repo.git
-          cd target-repo
+          cd gitops-repo
 
       - name: Update Deployment YAML
         env:
