@@ -77,21 +77,21 @@ jobs:
 #  Kubernetes 관련 설정		
 # ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       
-      # Kubernetes 배포 YAML 파일(k8s/deployment.yaml)의 image 태그를 새로 빌드되는 이미지 태그로 업데이트합니다.
+      # Kubernetes 배포 YAML 파일(k8s/apps/backend/post-deployment.yaml)의 image 태그를 새로 빌드되는 이미지 태그로 업데이트합니다.
       - name: Update Deployment YAML
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           IMAGE_TAG: ${{ github.sha }}
         run:  |
-          sed -i 's|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/postapp:${{ github.sha }}|' k8s/deployment.yaml	 
+          sed -i 's|image: .*|image: ${{ secrets.DOCKER_HUB_USERNAME }}/postapp:${{ github.sha }}|' k8s/apps/backend/post-deployment.yaml	 
 
           
       # 변경사항이 있으면 커밋하고 푸시합니다.
-      # 변경된 k8s/deployment.yaml파일을 git에 push
+      # 변경된 k8s/apps/backend/post-deployment.yaml	 파일을 git에 push
       - name: Commit and push if there are changes
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'github-actions@github.com'
-          git add k8s/deployment.yaml
+          git add k8s/apps/backend/post-deployment.yaml	 
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update image tag to ${{ github.sha }}"; git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:${{ github.ref }})
   
