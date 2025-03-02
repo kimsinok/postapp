@@ -17,7 +17,7 @@ spec:
         - name: mysql-container
           image: mysql:8.0.41
           env:
-            - name: MYSQL_PASSWORD
+            - name: MYSQL_ROOT_PASSWORD
               value: "1234"
             - name: MYSQL_DATABASE  
               value: lab_board
