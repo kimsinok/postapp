@@ -15,7 +15,7 @@ spec:
     spec:      
       containers:
         - name: post-container
-          image: javaenjoy0714/postapp:9e1ccc4a7e80877b1ec4b61b71bbf1ac05e333c2
+          image: javaenjoy0714/postapp:ad6604819ce8520277994dd55f6db2d602a68054
           ports:
             - containerPort: 8080
           
