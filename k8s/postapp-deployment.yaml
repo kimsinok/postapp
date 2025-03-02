@@ -12,8 +12,7 @@ spec:
     metadata:
       labels:
         app: post-pod
-    spec:
-      restartPolicy: Never
+    spec:      
       containers:
         - name: post-container
           image: javaenjoy0714/postapp:9d9e43c8ca6dfee291a1937b1e3a847ee99eb0d0
