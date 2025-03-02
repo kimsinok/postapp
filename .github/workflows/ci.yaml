@@ -62,11 +62,11 @@ jobs:
           DOCKER_HUB_REPOSITORY: postapp
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          sed -i "s|image: .*|image: $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:${IMAGE_TAG}|" k8s/deployment.yaml
+          sed -i "s|image: .*|image: $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:${IMAGE_TAG}|" k8s/postapp-deployment.yaml
 
       - name: Commit and push if there are changes
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'github-actions@github.com'
-          git add k8s/deployment.yaml gradlew
+          git add k8s/postapp-deployment.yaml gradlew
           git diff --quiet && git diff --staged --quiet || (git commit -m "Update image tag to ${{ github.sha }}" && git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git HEAD:$(echo ${{ github.ref }} | sed 's/refs\/heads\///'))
