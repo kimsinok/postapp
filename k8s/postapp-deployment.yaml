@@ -13,9 +13,10 @@ spec:
       labels:
         app: post-pod
     spec:
+      restartPolicy: Never
       containers:
         - name: post-container
-          image: javaenjoy0714/postapp:0292799bb575f1bfeace8030b9e00d6910749ab1
+          image: javaenjoy0714/postapp:eb1a2980dbed7b887c062962b3017b8e45a97fc5
           ports:
             - containerPort: 8080
           
