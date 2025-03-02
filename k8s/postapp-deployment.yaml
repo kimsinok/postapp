@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: post-container
-          image: javaenjoy0714/postapp:afa33a52c26421ea68ebb941fb848069355f2b9d
+          image: javaenjoy0714/postapp:v1
           ports:
             - containerPort: 8080
           
@@ -27,7 +27,6 @@ kind: Service
 metadata:
   name: post-service
   namespace: postapp
-spec:
 spec:
   selector:
     app: post-pod

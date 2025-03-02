@@ -41,7 +41,6 @@ metadata:
   name: mysql-service
   namespace: postapp
 spec:
-spec:
   selector:
     app: mysql-pod
   ports:
