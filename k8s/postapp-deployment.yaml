@@ -16,7 +16,7 @@ spec:
       restartPolicy: Never
       containers:
         - name: post-container
-          image: javaenjoy0714/postapp:87ac0d497b8da9dbde1c7ae4c17e3f5919cb2ec4
+          image: javaenjoy0714/postapp:9d9e43c8ca6dfee291a1937b1e3a847ee99eb0d0
           ports:
             - containerPort: 8080
           
