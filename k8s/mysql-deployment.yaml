@@ -32,7 +32,6 @@ spec:
             path: /data/mysql
             type: DirectoryOrCreate
 
-
 --- 
 
 
