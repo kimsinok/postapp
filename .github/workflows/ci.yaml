@@ -51,7 +51,7 @@ jobs:      # 여러개의 작업을 정의할 수 있다.
         env:
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
           DOCKER_HUB_REPOSITORY: postapp
-          IMAGE_TAG: ${{ github.sha }}
+          IMAGE_TAG: ${{ github.sha }}   # 현재 실행 중인 커밋의 SHA 값 (고유한 해시 값) 
         run: |
           docker build -t $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:$IMAGE_TAG .
           docker push $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:$IMAGE_TAG
