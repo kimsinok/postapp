@@ -6,7 +6,7 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://mysql-service.postapp.svc.cluster.local:3306/lab_board?serverTimezone=Asia/Seoul&characterEncoding=utf8
-    username: root
+    username: root  # {}
     password: 1234
  
  
