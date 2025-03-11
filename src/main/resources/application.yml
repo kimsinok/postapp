@@ -6,8 +6,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://mysql-service.postapp.svc.cluster.local:3306/lab_board?serverTimezone=Asia/Seoul&characterEncoding=utf8
-    username: root  # {}
-    password: 1234
+    username: root  # ${MYSQL_DATABASE} : 쿠버네티스에서 주입한 환경 변수 참조
+    password: 1234  # ${MYSQL_ROOT_PASSWORD}
  
  
   # JPA 설정  
